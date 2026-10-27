@@ -22,8 +22,20 @@ export async function connect(): Promise<Client | null> {
   }
 }
 
-/** Rebuilds the database from the migrations, so every run starts clean. */
+/**
+ * Rebuilds the database from the migrations, so every run starts clean.
+ *
+ * This drops the whole public schema, so it refuses to run against anything
+ * that is not plainly a local throwaway database.
+ */
 export async function resetDatabase(client: Client): Promise<void> {
+  const host = new URL(TEST_DATABASE_URL).hostname;
+  if (!['127.0.0.1', 'localhost', '::1'].includes(host)) {
+    throw new Error(
+      `resetDatabase drops the public schema and will only run against a local database, not ${host}`,
+    );
+  }
+
   await client.query(`
     drop schema if exists public cascade;
     drop schema if exists auth cascade;

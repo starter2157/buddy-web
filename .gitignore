@@ -14,3 +14,7 @@ yarn-error.log*
 *.tsbuildinfo
 next-env.d.ts
 coverage
+
+# Supabase CLI local state
+supabase/.temp
+supabase/.branches

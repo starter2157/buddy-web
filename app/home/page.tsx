@@ -1,19 +1,24 @@
 import { redirect } from 'next/navigation';
 import { Logo } from '@/components/ui/Logo';
+import { FacultyChip, YearChip } from '@/components/ui/Chip';
 import { MobileShell } from '@/components/ui/Shell';
+import { loadProfile } from '@/lib/profile';
 import { createClient } from '@/lib/supabase/server';
 
 /**
- * Placeholder. The waiting and reveal screens land with their own milestones;
- * for now this proves the session round-trip and gives somewhere to sign out.
+ * Placeholder. The waiting countdown and the reveal land with their own
+ * milestone; what matters here for now is the routing: somebody signed in but
+ * not registered belongs on /register.
  */
 export default async function HomePage() {
   const supabase = await createClient();
   const {
     data: { user },
   } = await supabase.auth.getUser();
-
   if (!user) redirect('/');
+
+  const profile = await loadProfile(supabase, user.id);
+  if (!profile) redirect('/register');
 
   return (
     <MobileShell>
@@ -30,8 +35,14 @@ export default async function HomePage() {
       </header>
 
       <div className="flex flex-col gap-3 px-5 py-6">
-        <p className="m-0 text-[14px] text-muted">เข้าสู่ระบบแล้วด้วย</p>
-        <strong className="text-[15px]">{user.email}</strong>
+        <span className="font-heading text-[17px] font-medium">{profile.nickname}</span>
+        <div className="flex flex-wrap gap-2">
+          <FacultyChip faculty={profile.faculty} />
+          <YearChip year={profile.year} />
+        </div>
+        <a href="/profile" className="text-[14px]">
+          แก้ไขข้อมูลและคำใบ้
+        </a>
       </div>
     </MobileShell>
   );
