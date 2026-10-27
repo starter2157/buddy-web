@@ -20,9 +20,13 @@ const config: Config = {
         grass: '#A9CF6A',
         wood: '#9A6A3E',
         'wood-dark': '#6E4523',
+        // The two lighter woods of the hero signboard and its post.
+        'wood-sign': '#A9733F',
+        'wood-post': '#8A5A33',
         brown: '#7A4E2A',
         primary: '#C7461F',
         'primary-pressed': '#8E2F12',
+        'primary-stroke': '#7A2A10',
         link: '#A33A18',
         'link-hover': '#7A2A10',
         required: '#D32F2F',
