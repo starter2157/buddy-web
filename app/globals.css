@@ -1,0 +1,69 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  html {
+    /* The ground colour also paints the overscroll area on iOS. */
+    background-color: theme('colors.ground');
+  }
+
+  body {
+    @apply bg-ground text-ink font-sans antialiased;
+  }
+
+  a {
+    @apply text-link;
+  }
+
+  a:hover {
+    @apply text-link-hover;
+  }
+
+  /* Native controls inherit the app's type instead of the UA default. */
+  input,
+  select,
+  textarea,
+  button {
+    font-family: inherit;
+  }
+
+  /* iOS zooms any field whose text is under 16px when it gains focus. */
+  input,
+  select,
+  textarea {
+    font-size: 16px;
+  }
+
+  :focus-visible {
+    @apply outline-none ring-2 ring-primary ring-offset-2 ring-offset-ground;
+  }
+}
+
+@layer utilities {
+  .text-stroke-logo {
+    -webkit-text-stroke: 2px theme('colors.logo.stroke');
+  }
+
+  .text-stroke-lime {
+    -webkit-text-stroke: 0.6px theme('colors.logo.lime-stroke');
+  }
+
+  .text-stroke-lime-lg {
+    -webkit-text-stroke: 1px theme('colors.logo.lime-stroke');
+  }
+
+  .text-stroke-logo-lg {
+    -webkit-text-stroke: 2.5px theme('colors.logo.stroke');
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+  }
+}
