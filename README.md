@@ -152,6 +152,13 @@ Import the repository, set the five environment variables above in **Settings �
 Environment Variables**, and deploy. Then set `NEXT_PUBLIC_SITE_URL` to the real
 domain and redeploy, so OAuth redirects point at it.
 
+> **Check Deployment Protection.** If **Settings → Deployment Protection →
+> Vercel Authentication** is on for production, Vercel answers every request at
+> the edge with a login page — including the cron job's, which then never
+> reaches the app and the match is never drawn. Either turn it off for
+> production, or add a Protection Bypass and send it with the cron request.
+> Step 7 shows how to check from outside.
+
 ### 6. Add an admin
 
 Admins are an email allowlist. In the Supabase **SQL Editor**:
@@ -190,6 +197,28 @@ copied into the job body.
 The endpoint is idempotent: if a match run already exists it does nothing, so a
 duplicate fire, a retry, or an admin who already drew one by hand all leave the
 existing match alone.
+
+**Test the whole path before the night**, rather than finding out at 23:59.
+From your own machine:
+
+```bash
+curl -i -X POST https://your-app.vercel.app/api/cron/match \
+  -H "Authorization: Bearer <your CRON_SECRET>"
+```
+
+- `200` with `"skipped"` or a run id — the path works end to end.
+- `401` with a JSON body — the app was reached but the secret does not match.
+- An HTML login page — Vercel's Deployment Protection is in the way; see step 5.
+
+Because it is idempotent this is safe to run for real: if a match already
+exists it changes nothing. To confirm the job itself fired afterwards:
+
+```sql
+select status, return_message, start_time
+from cron.job_run_details
+where jobid = (select jobid from cron.job where jobname = 'buddy-auto-match')
+order by start_time desc limit 5;
+```
 
 ---
 
