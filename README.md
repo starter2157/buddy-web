@@ -24,8 +24,12 @@ npm run seed -- --phase=revealed
 npm run dev
 ```
 
-`npx supabase start` prints an `API URL`, an `anon key` and a `service_role
-key`. Put them in `.env.local`, and add the line that turns the demo on:
+`npx supabase start` prints several key-like values. You need the two long
+ones that begin `eyJ…`, labelled **`anon key`** and **`service_role key`** —
+not `publishable key`, `secret key`, or either of the `S3 access key` values.
+If you lose the output, `npx supabase status` prints it again.
+
+Put those two in `.env.local`, and add the line that turns the demo on:
 
 ```
 NEXT_PUBLIC_SUPABASE_URL=http://127.0.0.1:54321
@@ -38,6 +42,10 @@ ALLOW_DEMO_LOGIN=1
 
 Then open **http://localhost:3000/demo** and tap any name to sign in as them.
 The first person in the list is an admin, so `/admin` works too.
+
+> If `/demo` loads but lists nobody, the keys are wrong — the page reads the
+> roster with the service-role key and says nothing when that fails. Check the
+> server log for `Expected 3 parts in JWT`, which means a non-JWT key was used.
 
 > The demo sign-in exists only for this. It sits behind two independent gates —
 > never in a production build, and only when `ALLOW_DEMO_LOGIN` is set — and
