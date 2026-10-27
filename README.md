@@ -79,8 +79,31 @@ Settings → API** you need the **Project URL**, the **anon** key and the
 
 ### 2. Push the migrations
 
+First sign the CLI in to your Supabase account. This opens a browser:
+
 ```bash
-npx supabase link --project-ref <your-project-ref>
+npx supabase login
+```
+
+Then link the folder to the project. **`--project-ref` takes the bare ref, not
+a URL** — for `https://abcdefgh.supabase.co` the ref is `abcdefgh`. It is the
+same string as in your dashboard address bar. Linking prompts for the database
+password you set when you created the project (resettable under Settings →
+Database):
+
+```bash
+npx supabase link --project-ref abcdefgh
+```
+
+See what would be applied before applying it:
+
+```bash
+npx supabase db push --dry-run
+```
+
+That should list all six migrations. Then run it for real:
+
+```bash
 npx supabase db push
 ```
 
