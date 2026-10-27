@@ -12,6 +12,8 @@ import {
   formatThaiDateRange,
   formatThaiDateTime,
   formatThaiTime,
+  fromBangkokInputValue,
+  toBangkokInputValue,
 } from '@/lib/time';
 
 /** The defaults the migration ships with. */
@@ -165,5 +167,33 @@ describe('Thai dates', () => {
       'ม.ค.', 'ก.พ.', 'มี.ค.', 'เม.ย.', 'พ.ค.', 'มิ.ย.',
       'ก.ค.', 'ส.ค.', 'ก.ย.', 'ต.ค.', 'พ.ย.', 'ธ.ค.',
     ]);
+  });
+});
+
+describe('datetime-local values in Bangkok time', () => {
+  test('renders a stored timestamp as Bangkok wall time', () => {
+    expect(toBangkokInputValue(new Date('2026-11-07T18:00:00+07:00'))).toBe('2026-11-07T18:00');
+    // 23:30 UTC is already the next morning in Bangkok.
+    expect(toBangkokInputValue(new Date('2026-11-06T23:30:00Z'))).toBe('2026-11-07T06:30');
+  });
+
+  test('an empty value round-trips as empty', () => {
+    expect(toBangkokInputValue(null)).toBe('');
+    expect(fromBangkokInputValue('')).toBeNull();
+    expect(fromBangkokInputValue('   ')).toBeNull();
+  });
+
+  test('reads an input value back as Bangkok time', () => {
+    expect(fromBangkokInputValue('2026-11-07T18:00')).toBe('2026-11-07T18:00:00+07:00');
+  });
+
+  test('round-trips through both directions', () => {
+    const original = new Date('2026-10-30T00:00:00+07:00');
+    const iso = fromBangkokInputValue(toBangkokInputValue(original));
+    expect(new Date(iso!).toISOString()).toBe(original.toISOString());
+  });
+
+  test('refuses a value that is not a date', () => {
+    expect(fromBangkokInputValue('not-a-date')).toBeNull();
   });
 });
