@@ -65,7 +65,11 @@ function requireLocalSupabase(): { url: string; serviceKey: string } {
   const serviceKey = process.env.SUPABASE_SERVICE_ROLE_KEY ?? '';
 
   if (!url || !serviceKey) {
-    throw new Error('Set NEXT_PUBLIC_SUPABASE_URL and SUPABASE_SERVICE_ROLE_KEY (see .env.example).');
+    throw new Error(
+      'Missing NEXT_PUBLIC_SUPABASE_URL or SUPABASE_SERVICE_ROLE_KEY.\n' +
+        '  Copy .env.example to .env.local and fill in the values that\n' +
+        '  "npx supabase start" printed.',
+    );
   }
 
   // The seed creates accounts with a shared password and can wipe every
