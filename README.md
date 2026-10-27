@@ -125,18 +125,38 @@ Admins can change all four later on `/admin`.
 
 ### 3. Create the Google OAuth client
 
-In the [Google Cloud console](https://console.cloud.google.com) → **APIs &
-Services → Credentials → Create credentials → OAuth client ID → Web
+#### a. The consent screen
+
+In the [Google Cloud console](https://console.cloud.google.com), create or pick
+a project, then set up **APIs & Services → OAuth consent screen**: app name, a
+support email, and a developer contact. The app only asks for `email` and
+`profile`, which Google treats as non-sensitive, so no verification review is
+needed.
+
+> **Publish it before the camp.** A consent screen left in **Testing** only
+> admits accounts listed as test users, capped at 100 — everyone else gets
+> "has not completed the Google verification process" and cannot sign in. Since
+> the scopes are non-sensitive, **Publish app** takes effect immediately with no
+> review. This is the step that silently breaks a sign-up week.
+
+#### b. The client
+
+**APIs & Services → Credentials → Create credentials → OAuth client ID → Web
 application**:
 
 - **Authorised redirect URI**:
   `https://<your-project-ref>.supabase.co/auth/v1/callback`
 
 That URI is Supabase's, not the app's — Google returns to Supabase, which then
-returns to the app.
+returns to the app. Your own domain does **not** go here; it goes in Supabase's
+Redirect URLs below.
 
-Then in Supabase → **Authentication → Providers → Google**: enable it and paste
-the client ID and secret.
+Copy the **Client ID** and **Client secret**.
+
+#### c. Wiring it to Supabase
+
+In Supabase → **Authentication → Sign In / Providers → Google**: enable it and
+paste the client ID and secret.
 
 And in Supabase → **Authentication → URL Configuration**:
 
