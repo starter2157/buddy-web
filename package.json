@@ -10,7 +10,8 @@
     "test": "vitest run",
     "test:watch": "vitest",
     "db:up": "docker run -d --rm --name buddy-pg -e POSTGRES_PASSWORD=postgres -e POSTGRES_DB=buddy -p 55432:5432 postgres:16-alpine",
-    "db:down": "docker rm -f buddy-pg"
+    "db:down": "docker rm -f buddy-pg",
+    "seed": "tsx --env-file=.env.local supabase/seed/seed.ts"
   },
   "dependencies": {
     "@supabase/ssr": "^0.7.0",
@@ -32,6 +33,7 @@
     "pg": "^8.23.1",
     "postcss": "^8.5.6",
     "tailwindcss": "^3.4.17",
+    "tsx": "^4.23.15",
     "typescript": "^5.8.3",
     "vitest": "^3.2.4"
   }

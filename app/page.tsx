@@ -6,6 +6,7 @@ import { Clouds, GrassFooter, SkyWave } from '@/components/ui/Scenery';
 import { MobileShell } from '@/components/ui/Shell';
 import { STUDENT_EMAIL_DOMAIN } from '@/lib/chula';
 import { siteUrl } from '@/lib/env';
+import { isDemoLoginEnabled } from '@/lib/demo';
 import { detectInAppBrowser } from '@/lib/inapp';
 
 const SIGN_IN_ERRORS: Record<string, string> = {
@@ -77,6 +78,12 @@ export default async function LoginPage({
           ใช้อีเมลมหาวิทยาลัย{' '}
           <strong className="text-ink">@{STUDENT_EMAIL_DOMAIN}</strong> เท่านั้น
         </p>
+
+        {isDemoLoginEnabled() ? (
+          <a href="/demo" className="text-center text-[13px]">
+            เข้าสู่ระบบสำหรับทดลองใช้ (เฉพาะเครื่องนี้)
+          </a>
+        ) : null}
       </div>
 
       <div className="relative min-h-[120px] flex-1">

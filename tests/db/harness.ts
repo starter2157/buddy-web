@@ -11,6 +11,17 @@ const BOOTSTRAP = path.join(HERE, 'bootstrap.sql');
 export const TEST_DATABASE_URL =
   process.env.TEST_DATABASE_URL ?? 'postgres://postgres:postgres@127.0.0.1:55432/buddy';
 
+/**
+ * Migrations that need extensions a plain Postgres does not carry. The cron
+ * schedule needs pg_cron and pg_net, which Supabase provides and this harness
+ * cannot; that migration is verified against a real Supabase instead.
+ */
+const NEEDS_SUPABASE_EXTENSIONS = ['20261027000600_cron_schedule.sql'];
+
+function isTestable(file: string): boolean {
+  return file.endsWith('.sql') && !NEEDS_SUPABASE_EXTENSIONS.includes(file);
+}
+
 export async function connect(): Promise<Client | null> {
   const client = new Client({ connectionString: TEST_DATABASE_URL });
   try {
@@ -43,7 +54,7 @@ export async function resetDatabase(client: Client): Promise<void> {
   `);
   await client.query(readFileSync(BOOTSTRAP, 'utf8'));
 
-  for (const file of readdirSync(MIGRATIONS).filter((f) => f.endsWith('.sql')).sort()) {
+  for (const file of readdirSync(MIGRATIONS).filter(isTestable).sort()) {
     await client.query(readFileSync(path.join(MIGRATIONS, file), 'utf8'));
   }
 }

@@ -391,3 +391,75 @@ describeDb('admin functions', () => {
 afterAll(async () => {
   await db?.end();
 });
+
+describeDb('cron_create_draft_run', () => {
+  beforeEach(async () => {
+    if (!db) return;
+    await db.query('truncate public.assignments, public.match_runs, public.admins cascade');
+    await db.query('delete from public.profiles');
+    await db.query('delete from auth.users');
+
+    await seedPerson(db, person(ADMIN, '6730000121', 'เอ'));
+    await seedPerson(db, person(PARTICIPANT, '6730000223', 'บี'));
+    await seedPerson(db, person(THIRD, '6730000333', 'ซี'));
+  });
+
+  test('creates a draft run when there is none', async () => {
+    const runId = (
+      await db!.query('select public.cron_create_draft_run($1, $2, $3) as id', [
+        5,
+        JSON.stringify({ n: 3 }),
+        [ADMIN, PARTICIPANT, THIRD],
+      ])
+    ).rows[0]!.id;
+
+    expect(runId).not.toBeNull();
+    const links = (
+      await db!.query('select count(*)::int as n from public.assignments where run_id = $1', [runId])
+    ).rows[0]!.n;
+    expect(links).toBe(3);
+  });
+
+  test.each(['draft', 'confirmed'] as const)(
+    'does nothing when a %s run already exists',
+    async (status) => {
+      const existing = await seedRun(db!, status, [ADMIN, PARTICIPANT, THIRD]);
+
+      const runId = (
+        await db!.query('select public.cron_create_draft_run($1, $2, $3) as id', [
+          6,
+          '{}',
+          [ADMIN, THIRD, PARTICIPANT],
+        ])
+      ).rows[0]!.id;
+
+      // Reports "nothing to do" rather than drawing a second match.
+      expect(runId).toBeNull();
+
+      const runs = (await db!.query('select id from public.match_runs')).rows;
+      expect(runs).toHaveLength(1);
+      expect(runs[0]!.id).toBe(existing);
+    },
+  );
+
+  test('firing twice leaves exactly one run', async () => {
+    const args: [number, string, string[]] = [7, '{}', [ADMIN, PARTICIPANT, THIRD]];
+    await db!.query('select public.cron_create_draft_run($1, $2, $3)', args);
+    await db!.query('select public.cron_create_draft_run($1, $2, $3)', args);
+
+    const count = (await db!.query('select count(*)::int as n from public.match_runs')).rows[0]!.n;
+    expect(count).toBe(1);
+  });
+
+  test('is not callable by a signed-in participant', async () => {
+    await expect(
+      asParticipant(async (c) =>
+        c.query('select public.cron_create_draft_run($1, $2, $3)', [
+          8,
+          '{}',
+          [ADMIN, PARTICIPANT, THIRD],
+        ]),
+      ),
+    ).rejects.toThrow(/permission denied/);
+  });
+});
