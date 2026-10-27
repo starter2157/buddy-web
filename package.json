@@ -8,7 +8,9 @@
     "start": "next start",
     "typecheck": "tsc --noEmit",
     "test": "vitest run",
-    "test:watch": "vitest"
+    "test:watch": "vitest",
+    "db:up": "docker run -d --rm --name buddy-pg -e POSTGRES_PASSWORD=postgres -e POSTGRES_DB=buddy -p 55432:5432 postgres:16-alpine",
+    "db:down": "docker rm -f buddy-pg"
   },
   "dependencies": {
     "@supabase/ssr": "^0.7.0",
@@ -22,9 +24,11 @@
   },
   "devDependencies": {
     "@types/node": "^22.15.0",
+    "@types/pg": "^8.23.1",
     "@types/react": "^19.1.0",
     "@types/react-dom": "^19.1.0",
     "autoprefixer": "^10.4.21",
+    "pg": "^8.23.1",
     "postcss": "^8.5.6",
     "tailwindcss": "^3.4.17",
     "typescript": "^5.8.3",

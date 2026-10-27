@@ -8,5 +8,8 @@ export default defineConfig({
   test: {
     environment: 'node',
     include: ['tests/**/*.test.ts'],
+    // The database tests share one Postgres instance and rebuild the schema,
+    // so test files must not run concurrently.
+    fileParallelism: false,
   },
 });
